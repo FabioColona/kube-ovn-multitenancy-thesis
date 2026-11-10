@@ -1,0 +1,39 @@
+# Test pods: every pod answers ping and serves HTTP on TCP 8080; the path /cgi-bin/ip returns the source address
+# the pod sees, so the scripts can show whether an address was translated on the way.
+#   t1, t2 -> tenant t (sub-t)      u1 -> tenant u (sub-u)      d1 -> default subnet (ovn-default)
+# CHANGE: the image can be replaced by any image that has ping, nc, wget and an httpd applet with CGI (busybox does).
+apiVersion: v1
+kind: Pod
+metadata: {name: t1, namespace: ns-t}
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "mkdir -p /www/cgi-bin && printf '#!/bin/sh\\necho \"Content-type: text/plain\"\\necho\\necho \"$REMOTE_ADDR\"\\n' > /www/cgi-bin/ip && chmod +x /www/cgi-bin/ip && exec httpd -f -p 8080 -h /www"]
+---
+apiVersion: v1
+kind: Pod
+metadata: {name: t2, namespace: ns-t}
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "mkdir -p /www/cgi-bin && printf '#!/bin/sh\\necho \"Content-type: text/plain\"\\necho\\necho \"$REMOTE_ADDR\"\\n' > /www/cgi-bin/ip && chmod +x /www/cgi-bin/ip && exec httpd -f -p 8080 -h /www"]
+---
+apiVersion: v1
+kind: Pod
+metadata: {name: u1, namespace: ns-u}
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "mkdir -p /www/cgi-bin && printf '#!/bin/sh\\necho \"Content-type: text/plain\"\\necho\\necho \"$REMOTE_ADDR\"\\n' > /www/cgi-bin/ip && chmod +x /www/cgi-bin/ip && exec httpd -f -p 8080 -h /www"]
+---
+apiVersion: v1
+kind: Pod
+metadata: {name: d1, namespace: ns-shared}
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "mkdir -p /www/cgi-bin && printf '#!/bin/sh\\necho \"Content-type: text/plain\"\\necho\\necho \"$REMOTE_ADDR\"\\n' > /www/cgi-bin/ip && chmod +x /www/cgi-bin/ip && exec httpd -f -p 8080 -h /www"]

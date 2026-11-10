@@ -1,0 +1,29 @@
+# Test pods of the custom VPCs (same behaviour as 20-pods.yaml: ping, TCP 8080, /cgi-bin/ip).
+#   c-t, c-t2 -> vpc-t (sub-vt)      c-u -> vpc-u (sub-vu)
+# CHANGE: the namespaces must match 50-custom-vpcs.yaml.
+apiVersion: v1
+kind: Pod
+metadata: {name: c-t, namespace: ns-vt}
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "mkdir -p /www/cgi-bin && printf '#!/bin/sh\\necho \"Content-type: text/plain\"\\necho\\necho \"$REMOTE_ADDR\"\\n' > /www/cgi-bin/ip && chmod +x /www/cgi-bin/ip && exec httpd -f -p 8080 -h /www"]
+---
+apiVersion: v1
+kind: Pod
+metadata: {name: c-t2, namespace: ns-vt}
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "mkdir -p /www/cgi-bin && printf '#!/bin/sh\\necho \"Content-type: text/plain\"\\necho\\necho \"$REMOTE_ADDR\"\\n' > /www/cgi-bin/ip && chmod +x /www/cgi-bin/ip && exec httpd -f -p 8080 -h /www"]
+---
+apiVersion: v1
+kind: Pod
+metadata: {name: c-u, namespace: ns-vu}
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "mkdir -p /www/cgi-bin && printf '#!/bin/sh\\necho \"Content-type: text/plain\"\\necho\\necho \"$REMOTE_ADDR\"\\n' > /www/cgi-bin/ip && chmod +x /www/cgi-bin/ip && exec httpd -f -p 8080 -h /www"]

@@ -1,0 +1,9 @@
+# NetworkPolicy used by 41-netpol-vpc.sh (part 1): deny all ingress to every pod of ns-shared (that is, d1, which is
+# in the default VPC). Applied first; the next two manifests add one allow rule each.
+# CHANGE: the namespace must match NS_SHARED in config.env.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: deny-all-ingress, namespace: ns-shared}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]

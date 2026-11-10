@@ -1,0 +1,3 @@
+# Patch for sub-t-b: removes the ACL of 49-...
+spec:
+  acls: null

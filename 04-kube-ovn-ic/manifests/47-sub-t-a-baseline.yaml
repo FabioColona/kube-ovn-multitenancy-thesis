@@ -1,0 +1,3 @@
+# Patch: allowSubnets of sub-t-a in the BASELINE (used to restore it). CHANGE: CIDR of sub-t-b.
+spec:
+  allowSubnets: [10.81.0.0/24]

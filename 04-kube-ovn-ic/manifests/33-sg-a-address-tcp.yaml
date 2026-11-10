@@ -1,0 +1,12 @@
+# Step 2 (site A): the rule by address now lets in only TCP port 8080 from the pod CIDR of site B.
+# CHANGE: remoteAddress = pod CIDR of site B (SITE_B_POD_CIDR in config.env).
+apiVersion: kubeovn.io/v1
+kind: SecurityGroup
+metadata: {name: sg-ic}
+spec:
+  allowSameGroupTraffic: true
+  ingressRules:
+  - {ipVersion: ipv4, policy: allow, protocol: icmp, priority: 1, remoteType: address, remoteAddress: 10.16.0.1/32}
+  - {ipVersion: ipv4, policy: allow, protocol: tcp, portRangeMin: 8080, portRangeMax: 8080, priority: 1, remoteType: address, remoteAddress: 10.17.0.0/16}
+  egressRules:
+  - {ipVersion: ipv4, policy: allow, protocol: all, priority: 1, remoteType: address, remoteAddress: 0.0.0.0/0}

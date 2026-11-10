@@ -1,0 +1,11 @@
+# Step 4 (site B): the source side. The group of site B lets out only traffic toward its own pod CIDR.
+# CHANGE: remoteAddress of the egress rule and the gateway = pod CIDR and gateway of site B.
+apiVersion: kubeovn.io/v1
+kind: SecurityGroup
+metadata: {name: sg-ic}
+spec:
+  allowSameGroupTraffic: true
+  ingressRules:
+  - {ipVersion: ipv4, policy: allow, protocol: icmp, priority: 1, remoteType: address, remoteAddress: 10.17.0.1/32}
+  egressRules:
+  - {ipVersion: ipv4, policy: allow, protocol: all, priority: 1, remoteType: address, remoteAddress: 10.17.0.0/16}

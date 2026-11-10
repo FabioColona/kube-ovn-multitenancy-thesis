@@ -1,0 +1,8 @@
+# NetworkPolicy used by 41-netpol-vpc.sh (part 2): deny all ingress to every pod of ns-vt, which lives in the custom VPC.
+# CHANGE: the namespace must match NS_VT in config.env.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: deny-all-ingress, namespace: ns-vt}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]

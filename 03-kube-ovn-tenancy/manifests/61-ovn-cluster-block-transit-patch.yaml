@@ -1,0 +1,18 @@
+# Patch for ovn-cluster: two "drop" policies at priority 29800, one per direction, between the custom subnets of the
+# two tenants. They beat the allows at 29600, so ovn-cluster stops being a transit router between the tenants, while
+# each tenant still reaches the default VPC. The merge replaces the array, so the allows are repeated.
+# CHANGE: the matches use the CIDRs of sub-vt and sub-vu; the drop priority must be higher than the allow priority.
+spec:
+  policyRoutes:
+  - action: drop
+    match: "ip4.src == 10.90.0.0/24 && ip4.dst == 10.91.0.0/24"
+    priority: 29800
+  - action: drop
+    match: "ip4.src == 10.91.0.0/24 && ip4.dst == 10.90.0.0/24"
+    priority: 29800
+  - action: allow
+    match: "ip4.dst == 10.90.0.0/24"
+    priority: 29600
+  - action: allow
+    match: "ip4.dst == 10.91.0.0/24"
+    priority: 29600

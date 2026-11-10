@@ -1,0 +1,144 @@
+# Tenants of site A for the OVN-IC tests (21-ic-tenants.sh). Real values of the thesis laboratory.
+#   tenant T : private subnet sub-t-a (10.80.0.0/24) + custom VPC vpc-t (sub-vt, 10.90.0.0/24)
+#   tenant U : private subnet sub-u-a (10.82.0.0/24) + custom VPC vpc-u (sub-vu, 10.91.0.0/24)
+#   public   : pod d-a in the default subnet ovn-default (10.16.0.0/16)
+# Every pod serves HTTP on 8080 and answers ping, so each one is both a client and a target.
+# allowSubnets are the BASELINE: each private subnet admits only the matching private subnet of its tenant on site B
+# (10.81.0.0/24 for T, 10.83.0.0/24 for U). The tests add more and then restore them.
+# CHANGE: all CIDRs must be inside no other network of the lab; the pod IPs must be inside their subnet and not .1.
+---
+apiVersion: v1
+kind: Namespace
+metadata: {name: ns-t-a}
+---
+apiVersion: v1
+kind: Namespace
+metadata: {name: ns-u-a}
+---
+apiVersion: v1
+kind: Namespace
+metadata: {name: ns-d}
+---
+apiVersion: v1
+kind: Namespace
+metadata: {name: ns-vt}
+---
+apiVersion: v1
+kind: Namespace
+metadata: {name: ns-vu}
+---
+apiVersion: kubeovn.io/v1
+kind: Vpc
+metadata: {name: vpc-t}
+spec:
+  namespaces: [ns-vt]
+---
+apiVersion: kubeovn.io/v1
+kind: Vpc
+metadata: {name: vpc-u}
+spec:
+  namespaces: [ns-vu]
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata: {name: sub-t-a}
+spec:
+  protocol: IPv4
+  cidrBlock: 10.80.0.0/24
+  gateway: 10.80.0.1
+  namespaces: [ns-t-a]
+  private: true
+  natOutgoing: false
+  allowSubnets: [10.81.0.0/24]
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata: {name: sub-u-a}
+spec:
+  protocol: IPv4
+  cidrBlock: 10.82.0.0/24
+  gateway: 10.82.0.1
+  namespaces: [ns-u-a]
+  private: true
+  natOutgoing: false
+  allowSubnets: [10.83.0.0/24]
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata: {name: sub-vt}
+spec:
+  vpc: vpc-t
+  protocol: IPv4
+  cidrBlock: 10.90.0.0/24
+  gateway: 10.90.0.1
+  namespaces: [ns-vt]
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata: {name: sub-vu}
+spec:
+  vpc: vpc-u
+  protocol: IPv4
+  cidrBlock: 10.91.0.0/24
+  gateway: 10.91.0.1
+  namespaces: [ns-vu]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: t-a
+  namespace: ns-t-a
+  annotations: {ovn.kubernetes.io/ip_address: 10.80.0.20}
+spec:
+  containers:
+  - name: c
+    image: docker.io/library/busybox:1.36
+    command: ["sh", "-c", "exec httpd -f -p 8080 -h /tmp"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: u-a
+  namespace: ns-u-a
+  annotations: {ovn.kubernetes.io/ip_address: 10.82.0.20}
+spec:
+  containers:
+  - name: c
+    image: docker.io/library/busybox:1.36
+    command: ["sh", "-c", "exec httpd -f -p 8080 -h /tmp"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: d-a
+  namespace: ns-d
+  annotations: {ovn.kubernetes.io/ip_address: 10.16.0.30}
+spec:
+  containers:
+  - name: c
+    image: docker.io/library/busybox:1.36
+    command: ["sh", "-c", "exec httpd -f -p 8080 -h /tmp"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: c-t
+  namespace: ns-vt
+  annotations: {ovn.kubernetes.io/ip_address: 10.90.0.20}
+spec:
+  containers:
+  - name: c
+    image: docker.io/library/busybox:1.36
+    command: ["sh", "-c", "exec httpd -f -p 8080 -h /tmp"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: c-u
+  namespace: ns-vu
+  annotations: {ovn.kubernetes.io/ip_address: 10.91.0.20}
+spec:
+  containers:
+  - name: c
+    image: docker.io/library/busybox:1.36
+    command: ["sh", "-c", "exec httpd -f -p 8080 -h /tmp"]

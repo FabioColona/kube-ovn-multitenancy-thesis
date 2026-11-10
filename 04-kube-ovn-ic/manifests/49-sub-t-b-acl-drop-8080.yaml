@@ -1,0 +1,6 @@
+# Patch for sub-t-b (site B): drop TCP 8080 coming from the pod CIDR of tenant T on site A. The priority is higher than
+# the allow-related of the private subnet (1001), so the rule wins. ICMP is not touched.
+# CHANGE: 10.80.0.0/24 is sub-t-a.
+spec:
+  acls:
+  - {direction: to-lport, priority: 2000, match: "ip4.src == 10.80.0.0/24 && tcp.dst == 8080", action: drop}

@@ -1,0 +1,4 @@
+# Step 3 of 41-default-custom.sh, sub-t-a (site A): admit also the custom subnet of site B (sub-custom-b).
+# CHANGE: 10.60.0.0/24 is sub-custom-b.
+spec:
+  allowSubnets: [10.81.0.0/24, 10.60.0.0/24]

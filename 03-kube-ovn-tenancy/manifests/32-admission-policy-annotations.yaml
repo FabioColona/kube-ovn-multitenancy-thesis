@@ -1,0 +1,35 @@
+# In the namespaces labelled tenant-isolation=enforced, a pod must carry:
+#   - ovn.kubernetes.io/port_security: "true"
+#   - ovn.kubernetes.io/security_groups equal to the label "kubeovn-sg" of its namespace (when the label is present)
+# on CREATE and on UPDATE (so a tenant cannot remove or change the annotations of a running pod).
+# Only the pods resource is matched: pods/status (kubelet) is not.
+# CHANGE: the policy is generic; the labels are put on the namespaces by 23-admission-annotations.sh.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: enforce-pod-annotations
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]
+  validations:
+  - expression: "has(object.metadata.annotations) && 'ovn.kubernetes.io/port_security' in object.metadata.annotations && object.metadata.annotations['ovn.kubernetes.io/port_security'] == 'true'"
+    message: "port_security must be enabled in this namespace (annotation ovn.kubernetes.io/port_security)"
+  - expression: "!has(namespaceObject.metadata.labels) || !('kubeovn-sg' in namespaceObject.metadata.labels) || (has(object.metadata.annotations) && 'ovn.kubernetes.io/security_groups' in object.metadata.annotations && object.metadata.annotations['ovn.kubernetes.io/security_groups'] == namespaceObject.metadata.labels['kubeovn-sg'])"
+    message: "this namespace must use its own security group (annotation ovn.kubernetes.io/security_groups)"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: enforce-pod-annotations
+spec:
+  policyName: enforce-pod-annotations
+  validationActions: ["Deny"]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        tenant-isolation: enforced

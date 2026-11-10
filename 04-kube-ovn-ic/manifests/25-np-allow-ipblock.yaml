@@ -1,0 +1,11 @@
+# Step 4 (site A): allow the pod CIDR of site B.
+# CHANGE: the cidr must be the pod CIDR of site B (SITE_B_POD_CIDR in config.env).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-by-cidr, namespace: ic-np}
+spec:
+  podSelector: {matchLabels: {run: srv}}
+  policyTypes: [Ingress]
+  ingress:
+  - from:
+    - ipBlock: {cidr: 10.17.0.0/16}

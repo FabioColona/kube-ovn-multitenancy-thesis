@@ -1,0 +1,7 @@
+# Step 1 of 30-netpol-cross-site.sh (site A): no pod of ic-np accepts incoming traffic.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: deny-all-ingress, namespace: ic-np}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]

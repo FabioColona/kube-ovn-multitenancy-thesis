@@ -1,0 +1,6 @@
+# 43-ic-overlap.sh, scenario 1 (site B): a subnet with the SAME CIDR as sub-t-a of site A (10.80.0.0/24).
+# CHANGE: the cidrBlock must be the CIDR of a subnet that exists on the other site.
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata: {name: sub-ov-b}
+spec: {protocol: IPv4, cidrBlock: 10.80.0.0/24, gateway: 10.80.0.1}

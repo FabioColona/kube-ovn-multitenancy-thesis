@@ -1,0 +1,9 @@
+# Patch for vpc-u (site A): peering with the default VPC on a second link and ONE route towards the other site
+# (the private subnet of tenant T on site B). There is no route to 10.17.0.0/16 nor to 10.60.0.0/24 on purpose.
+# CHANGE: 169.254.1.1/30 is the local end (the other end, 169.254.1.2, is in 44-...).
+spec:
+  vpcPeerings:
+  - remoteVpc: ovn-cluster
+    localConnectIP: 169.254.1.1/30
+  staticRoutes:
+  - {cidr: 10.81.0.0/24, nextHopIP: 169.254.1.2, policy: policyDst}

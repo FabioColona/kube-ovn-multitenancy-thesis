@@ -1,0 +1,41 @@
+# Pods that ask for the subnet of tenant t (sub-t) with the annotation ovn.kubernetes.io/logical_switch.
+# The annotation, not the namespace, decides which subnet a pod joins.
+#   intruder : created in ns-u (tenant u) -> must NOT be allowed to join sub-t
+#   legit    : created in ns-t (tenant t) -> the same request is legitimate
+#   outsider : created in ns-shared, a namespace the admission policy does not cover
+# CHANGE: the subnet name (sub-t) and the namespaces must match 00-namespaces.yaml and 10-subnets.yaml.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: intruder
+  namespace: ns-u
+  labels: {case: intruder}
+  annotations:
+    ovn.kubernetes.io/logical_switch: sub-t
+spec:
+  containers:
+  - {name: c, image: "docker.io/library/busybox:1.36", command: ["httpd", "-f", "-p", "8080", "-h", "/tmp"]}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: legit
+  namespace: ns-t
+  labels: {case: legit}
+  annotations:
+    ovn.kubernetes.io/logical_switch: sub-t
+spec:
+  containers:
+  - {name: c, image: "docker.io/library/busybox:1.36", command: ["httpd", "-f", "-p", "8080", "-h", "/tmp"]}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: outsider
+  namespace: ns-shared
+  labels: {case: outsider}
+  annotations:
+    ovn.kubernetes.io/logical_switch: sub-t
+spec:
+  containers:
+  - {name: c, image: "docker.io/library/busybox:1.36", command: ["httpd", "-f", "-p", "8080", "-h", "/tmp"]}

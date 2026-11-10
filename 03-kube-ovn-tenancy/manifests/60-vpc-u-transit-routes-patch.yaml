@@ -1,0 +1,11 @@
+# Patch for vpc-u: adds ONE route, towards the subnet of the other tenant, through ovn-cluster.
+# The merge replaces the array, so the routes of 56-... are repeated.
+# CHANGE: 10.90.0.0/24 is the CIDR of sub-vt.
+spec:
+  staticRoutes:
+  - cidr: 10.16.0.0/16
+    nextHopIP: 169.254.1.2
+    policy: policyDst
+  - cidr: 10.90.0.0/24
+    nextHopIP: 169.254.1.2
+    policy: policyDst

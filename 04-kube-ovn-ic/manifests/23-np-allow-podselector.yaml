@@ -1,0 +1,10 @@
+# Step 2 (site A): allow the pods that carry app=client (in the namespace of the policy).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-by-pod-label, namespace: ic-np}
+spec:
+  podSelector: {matchLabels: {run: srv}}
+  policyTypes: [Ingress]
+  ingress:
+  - from:
+    - podSelector: {matchLabels: {app: client}}

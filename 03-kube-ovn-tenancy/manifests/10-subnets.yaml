@@ -1,0 +1,25 @@
+# One private subnet per tenant, in the default VPC (ovn-cluster).
+# "private: true" makes Kube-OVN drop all traffic from and to subnets that are not in allowSubnets.
+# CHANGE: cidrBlock and gateway must not overlap with the pod, service and join networks (see 02-kube-ovn-setup/config.env)
+#         nor with each other. The gateway is the first address of the cidrBlock.
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata:
+  name: sub-t
+spec:
+  protocol: IPv4
+  cidrBlock: 10.80.0.0/24
+  gateway: 10.80.0.1
+  private: true
+  namespaces: [ns-t]     # pods created in ns-t are placed in this subnet without any annotation
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata:
+  name: sub-u
+spec:
+  protocol: IPv4
+  cidrBlock: 10.82.0.0/24
+  gateway: 10.82.0.1
+  private: true
+  namespaces: [ns-u]

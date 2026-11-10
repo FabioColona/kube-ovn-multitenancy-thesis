@@ -1,0 +1,14 @@
+# NetworkPolicy used by 41-netpol-vpc.sh (part 2): the pod labelled role=server in ns-vt accepts ingress only from pods
+# labelled role=client in the same namespace. The script sets and removes the two labels (c-t = server, c-t2 = client).
+# CHANGE: the namespace must match NS_VT in config.env.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-clients, namespace: ns-vt}
+spec:
+  podSelector:
+    matchLabels: {role: server}
+  policyTypes: [Ingress]
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels: {role: client}

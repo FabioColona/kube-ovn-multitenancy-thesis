@@ -1,0 +1,9 @@
+# 44-ic-rbac.sh (site A): gives the ServiceAccount "default" of ns-vt the ClusterRole admin inside ns-vt only. That is what a
+# tenant administrator has. The script removes it at the end.
+# CHANGE: the namespace is the one of the tenant T custom VPC (manifests/40-tenants-site-a.yaml).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: tenant-admin, namespace: ns-vt}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: admin}
+subjects:
+- {kind: ServiceAccount, name: default, namespace: ns-vt}

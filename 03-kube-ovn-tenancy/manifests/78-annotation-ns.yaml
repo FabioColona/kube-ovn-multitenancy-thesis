@@ -1,0 +1,19 @@
+# Namespace and security group for 23-admission-annotations.sh. The labels are added by the script.
+# The group allows its own members and the gateway of the default subnet (10.16.0.1): without a rule towards the gateway
+# the check that kube-ovn-cni makes when a pod starts (ping to the gateway) fails and the pod never becomes Ready.
+# CHANGE: 10.16.0.1/32 must be the gateway of the subnet used by the pods (the default subnet ovn-default).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-an
+---
+apiVersion: kubeovn.io/v1
+kind: SecurityGroup
+metadata:
+  name: sg-an
+spec:
+  allowSameGroupTraffic: true
+  ingressRules:
+  - {ipVersion: ipv4, policy: allow, priority: 1, protocol: all, remoteAddress: 10.16.0.1/32, remoteType: address}
+  egressRules:
+  - {ipVersion: ipv4, policy: allow, priority: 1, protocol: all, remoteAddress: 10.16.0.1/32, remoteType: address}

@@ -1,0 +1,9 @@
+# Patch for ovn-cluster: a routing policy "allow" for traffic towards sub-vt, with priority 29600.
+# ovn-default has a distributed gateway, which installs a policy at priority 29000 that sends the traffic of its pods out
+# of the node. Without a higher-priority allow, the peering route is overridden. In the thesis lab: 29000 beat the route.
+# CHANGE: the match uses the CIDR of sub-vt; the priority must be higher than 29000.
+spec:
+  policyRoutes:
+  - action: allow
+    match: "ip4.dst == 10.90.0.0/24"
+    priority: 29600

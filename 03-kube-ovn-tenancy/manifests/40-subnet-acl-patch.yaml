@@ -1,0 +1,9 @@
+# Patch for the subnet sub-t (applied with: kubectl patch subnet sub-t --type merge --patch-file this-file).
+# Drops TCP 8080 towards the pods of the subnet; ping and every other port stay open.
+# CHANGE: match uses the CIDR of sub-t (10.80.0.0/24) and the port of the test pods (8080).
+spec:
+  acls:
+  - action: drop
+    direction: to-lport
+    priority: 3000
+    match: "ip4.src == 10.80.0.0/24 && tcp.dst == 8080"

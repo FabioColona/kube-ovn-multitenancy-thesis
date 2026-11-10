@@ -1,0 +1,19 @@
+# Namespaces of the two tenants (t, u) and of a "shared" namespace that stays on the default subnet.
+# CHANGE: the names are free, but they must match spec.namespaces in 10-subnets.yaml and the variables in config.env.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-t
+  labels: {tenant: t}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-u
+  labels: {tenant: u}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-shared      # no subnet bound: its pods use the default subnet (ovn-default)
+  labels: {tenant: shared}

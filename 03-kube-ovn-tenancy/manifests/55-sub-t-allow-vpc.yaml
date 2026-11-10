@@ -1,0 +1,5 @@
+# Patch for the private subnet sub-t: admit the CIDR of the custom VPC vpc-t (sub-vt).
+# CHANGE: 10.90.0.0/24 is the CIDR of sub-vt.
+spec:
+  allowSubnets:
+  - 10.90.0.0/24

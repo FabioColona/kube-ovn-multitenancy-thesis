@@ -1,0 +1,17 @@
+# ConfigMap ovn-ic-config of site B when the IC database has three members: ic-db-host lists ALL the members.
+# ovn-ic-nbctl accepts only the leader; with one address only, a site cannot find the leader after a failover.
+# The first address is the member local to the site.
+# CHANGE: the three addresses are the nodes of site A, the router and site B (the network of site A reaches the router at 10.1.0.1).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ovn-ic-config
+  namespace: kube-system
+data:
+  enable-ic: "true"
+  az-name: "az-b"
+  ic-db-host: "10.2.0.10,10.1.0.1,10.1.0.10"
+  ic-nb-port: "6645"
+  ic-sb-port: "6646"
+  gw-nodes: "site-b"
+  auto-route: "true"

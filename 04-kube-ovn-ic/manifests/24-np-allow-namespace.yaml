@@ -1,0 +1,10 @@
+# Step 3 (site A): allow the pods of the namespaces labelled np=allowed.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-by-namespace-label, namespace: ic-np}
+spec:
+  podSelector: {matchLabels: {run: srv}}
+  policyTypes: [Ingress]
+  ingress:
+  - from:
+    - namespaceSelector: {matchLabels: {np: allowed}}

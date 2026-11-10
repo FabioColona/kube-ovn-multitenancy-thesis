@@ -1,0 +1,17 @@
+# Patch for ovn-cluster: peering with BOTH custom VPCs and a route to each of their subnets.
+# The documentation says only two VPCs can be peered, and only custom ones; here ovn-cluster has two peerings.
+# The merge REPLACES the arrays, so both peerings and both routes are listed.
+# CHANGE: 169.254.0.2/30 and 169.254.1.2/30 are the ovn-cluster ends; 10.90.0.0/24 and 10.91.0.0/24 are the CIDRs of sub-vt and sub-vu.
+spec:
+  vpcPeerings:
+  - remoteVpc: vpc-t
+    localConnectIP: 169.254.0.2/30
+  - remoteVpc: vpc-u
+    localConnectIP: 169.254.1.2/30
+  staticRoutes:
+  - cidr: 10.90.0.0/24
+    nextHopIP: 169.254.0.1
+    policy: policyDst
+  - cidr: 10.91.0.0/24
+    nextHopIP: 169.254.1.1
+    policy: policyDst

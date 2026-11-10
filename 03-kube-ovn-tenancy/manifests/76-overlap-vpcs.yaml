@@ -1,0 +1,66 @@
+# Overlapping address ranges, used by 42-vpc-overlap.sh.
+#   vpc-o1 / sub-o1 : 10.95.0.0/24        vpc-o2 / sub-o2 : 10.95.0.0/24   (same CIDR in two custom VPCs)
+#   vpc-o1 / sub-o3 : 10.80.0.0/24        (same CIDR as sub-t, which is in the default VPC ovn-cluster)
+# CHANGE: 10.95.0.0/24 must not overlap anything inside the SAME VPC; 10.80.0.0/24 must be the CIDR of sub-t
+#         (10-subnets.yaml), because the point is to overlap with the default VPC. The namespaces must match config.env.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-o1
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-o2
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-o3
+---
+apiVersion: kubeovn.io/v1
+kind: Vpc
+metadata:
+  name: vpc-o1
+spec:
+  namespaces: [ns-o1, ns-o3]
+---
+apiVersion: kubeovn.io/v1
+kind: Vpc
+metadata:
+  name: vpc-o2
+spec:
+  namespaces: [ns-o2]
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata:
+  name: sub-o1
+spec:
+  vpc: vpc-o1
+  protocol: IPv4
+  cidrBlock: 10.95.0.0/24
+  gateway: 10.95.0.1
+  namespaces: [ns-o1]
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata:
+  name: sub-o2
+spec:
+  vpc: vpc-o2
+  protocol: IPv4
+  cidrBlock: 10.95.0.0/24
+  gateway: 10.95.0.1
+  namespaces: [ns-o2]
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata:
+  name: sub-o3
+spec:
+  vpc: vpc-o1
+  protocol: IPv4
+  cidrBlock: 10.80.0.0/24
+  gateway: 10.80.0.1
+  namespaces: [ns-o3]

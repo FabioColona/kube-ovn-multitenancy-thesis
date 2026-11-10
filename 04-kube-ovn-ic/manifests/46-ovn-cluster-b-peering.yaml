@@ -1,0 +1,10 @@
+# Patch for ovn-cluster of site B: the other end of the peering with vpc-custom-b, the route to its subnet and the
+# "allow" policy at priority 29600 (see 44-...). OVN-IC advertises the route to site A.
+# CHANGE: 169.254.2.2/30 is the ovn-cluster end; 10.60.0.0/24 is sub-custom-b.
+spec:
+  vpcPeerings:
+  - {remoteVpc: vpc-custom-b, localConnectIP: 169.254.2.2/30}
+  staticRoutes:
+  - {cidr: 10.60.0.0/24, nextHopIP: 169.254.2.1, policy: policyDst}
+  policyRoutes:
+  - {action: allow, match: "ip4.dst == 10.60.0.0/24", priority: 29600}

@@ -1,0 +1,53 @@
+# Two custom VPCs, one per tenant, each with one subnet and one namespace.
+# A custom VPC is a separate logical router: its pods cannot reach the default VPC (ovn-cluster) nor each other's VPC
+# until a peering and routes are added (see 52-... and 53-...).
+# CHANGE: the cidrBlock values must not overlap with the pod, service and join networks, with the tenant subnets of
+#         10-subnets.yaml (10.80.0.0/24, 10.82.0.0/24) nor with each other. If you change them, change the matching
+#         values in the manifests 53 to 55, 57 to 61 and 72.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-vt
+  labels: {tenant: t}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-vu
+  labels: {tenant: u}
+---
+apiVersion: kubeovn.io/v1
+kind: Vpc
+metadata:
+  name: vpc-t
+spec:
+  namespaces: [ns-vt]
+---
+apiVersion: kubeovn.io/v1
+kind: Vpc
+metadata:
+  name: vpc-u
+spec:
+  namespaces: [ns-vu]
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata:
+  name: sub-vt
+spec:
+  vpc: vpc-t
+  protocol: IPv4
+  cidrBlock: 10.90.0.0/24
+  gateway: 10.90.0.1
+  namespaces: [ns-vt]
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata:
+  name: sub-vu
+spec:
+  vpc: vpc-u
+  protocol: IPv4
+  cidrBlock: 10.91.0.0/24
+  gateway: 10.91.0.1
+  namespaces: [ns-vu]

@@ -1,0 +1,14 @@
+# Patch for ovn-cluster of site A: the other ends of the two peerings, the routes to the custom subnets and an "allow"
+# policy at priority 29600 for each (ovn-default has a distributed gateway, whose policy at 29000 would otherwise send the traffic
+# to the node and override the peering route). OVN-IC advertises these routes to site B.
+# CHANGE: 169.254.0.2/30 and 169.254.1.2/30 are the ovn-cluster ends; 10.90.0.0/24 and 10.91.0.0/24 are sub-vt and sub-vu.
+spec:
+  vpcPeerings:
+  - {remoteVpc: vpc-t, localConnectIP: 169.254.0.2/30}
+  - {remoteVpc: vpc-u, localConnectIP: 169.254.1.2/30}
+  staticRoutes:
+  - {cidr: 10.90.0.0/24, nextHopIP: 169.254.0.1, policy: policyDst}
+  - {cidr: 10.91.0.0/24, nextHopIP: 169.254.1.1, policy: policyDst}
+  policyRoutes:
+  - {action: allow, match: "ip4.dst == 10.90.0.0/24", priority: 29600}
+  - {action: allow, match: "ip4.dst == 10.91.0.0/24", priority: 29600}

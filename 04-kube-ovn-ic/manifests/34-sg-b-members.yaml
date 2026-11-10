@@ -1,0 +1,11 @@
+# Group with the SAME NAME (sg-ic) on site B, for the remote client cli-sg. Apply before 35-sg-site-b-pods.yaml.
+# CHANGE: the gateway is the first address of the pod CIDR of site B (10.17.0.1 for 10.17.0.0/16).
+apiVersion: kubeovn.io/v1
+kind: SecurityGroup
+metadata: {name: sg-ic}
+spec:
+  allowSameGroupTraffic: true
+  ingressRules:
+  - {ipVersion: ipv4, policy: allow, protocol: icmp, priority: 1, remoteType: address, remoteAddress: 10.17.0.1/32}
+  egressRules:
+  - {ipVersion: ipv4, policy: allow, protocol: all, priority: 1, remoteType: address, remoteAddress: 0.0.0.0/0}

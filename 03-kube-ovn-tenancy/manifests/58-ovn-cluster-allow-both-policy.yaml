@@ -1,0 +1,10 @@
+# Patch for ovn-cluster: "allow" at priority 29600 for traffic towards each custom subnet (see 54-... for the reason).
+# CHANGE: the matches use the CIDRs of sub-vt and sub-vu.
+spec:
+  policyRoutes:
+  - action: allow
+    match: "ip4.dst == 10.90.0.0/24"
+    priority: 29600
+  - action: allow
+    match: "ip4.dst == 10.91.0.0/24"
+    priority: 29600

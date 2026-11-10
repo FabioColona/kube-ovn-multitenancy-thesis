@@ -1,0 +1,4 @@
+# Patch for sub-t-b (site B): admit also the CIDR of the custom VPC of tenant T on site A (sub-vt).
+# CHANGE: 10.90.0.0/24 is sub-vt.
+spec:
+  allowSubnets: [10.80.0.0/24, 10.90.0.0/24]

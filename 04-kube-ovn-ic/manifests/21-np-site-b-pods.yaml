@@ -1,0 +1,16 @@
+# Pod of site B for 30-netpol-cross-site.sh: the remote client. It carries the same label (app=client) and its
+# namespace carries the same label (np=allowed) that the allow rules on site A ask for: if a rule still does not let it
+# in, the reason is that site A does not know the labels of objects that live in site B.
+# CHANGE: the namespace must match NS_NP in config.env.
+apiVersion: v1
+kind: Namespace
+metadata: {name: ic-np, labels: {np: allowed}}
+---
+apiVersion: v1
+kind: Pod
+metadata: {name: cli, namespace: ic-np, labels: {app: client}}
+spec:
+  containers:
+  - name: c
+    image: docker.io/library/busybox:1.36
+    command: ["sleep", "3600"]

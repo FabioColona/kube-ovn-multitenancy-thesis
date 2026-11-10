@@ -1,0 +1,13 @@
+# Step 0 of 31-sg-cross-site.sh (site A): the group lets in only the members of the group itself and the gateway.
+# The ICMP rule for the gateway is needed: without it the connectivity check that Kube-OVN runs when the pod is created
+# fails and the pod stays in ContainerCreating.
+# CHANGE: the gateway is the first address of the pod CIDR of the site (10.16.0.1 for 10.16.0.0/16).
+apiVersion: kubeovn.io/v1
+kind: SecurityGroup
+metadata: {name: sg-ic}
+spec:
+  allowSameGroupTraffic: true
+  ingressRules:
+  - {ipVersion: ipv4, policy: allow, protocol: icmp, priority: 1, remoteType: address, remoteAddress: 10.16.0.1/32}
+  egressRules:
+  - {ipVersion: ipv4, policy: allow, protocol: all, priority: 1, remoteType: address, remoteAddress: 0.0.0.0/0}

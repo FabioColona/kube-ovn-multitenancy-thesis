@@ -1,0 +1,10 @@
+# Step 4 of 41-default-custom.sh, vpc-t (site A): baseline routes + the return route to the private subnet of U on site B.
+# CHANGE: 10.83.0.0/24 is sub-u-b.
+spec:
+  staticRoutes:
+  - {cidr: 10.16.0.0/16, nextHopIP: 169.254.0.2, policy: policyDst}
+  - {cidr: 10.80.0.0/24, nextHopIP: 169.254.0.2, policy: policyDst}
+  - {cidr: 10.17.0.0/16, nextHopIP: 169.254.0.2, policy: policyDst}
+  - {cidr: 10.81.0.0/24, nextHopIP: 169.254.0.2, policy: policyDst}
+  - {cidr: 10.60.0.0/24, nextHopIP: 169.254.0.2, policy: policyDst}
+  - {cidr: 10.83.0.0/24, nextHopIP: 169.254.0.2, policy: policyDst}

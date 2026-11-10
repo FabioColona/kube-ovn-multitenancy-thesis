@@ -1,0 +1,12 @@
+# Patch for the default VPC ovn-cluster: the other end of the peering with vpc-t and the route towards sub-vt.
+# The merge REPLACES the arrays vpcPeerings and staticRoutes (a fresh cluster has none).
+# The documentation says VPC peering is for custom VPCs only; with ovn-cluster it works on v1.13.0 but is undocumented.
+# CHANGE: 169.254.0.2/30 is the ovn-cluster end of the link; 10.90.0.0/24 is the CIDR of sub-vt.
+spec:
+  vpcPeerings:
+  - remoteVpc: vpc-t
+    localConnectIP: 169.254.0.2/30
+  staticRoutes:
+  - cidr: 10.90.0.0/24
+    nextHopIP: 169.254.0.1
+    policy: policyDst

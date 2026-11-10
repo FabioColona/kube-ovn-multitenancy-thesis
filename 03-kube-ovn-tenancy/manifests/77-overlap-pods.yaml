@@ -1,0 +1,98 @@
+# Pods for 42-vpc-overlap.sh. Each server publishes a file /who with its own name, so a client can tell which of the
+# servers that share the same address has answered. Addresses are fixed with the annotation ovn.kubernetes.io/ip_address.
+#   ns-o1 (vpc-o1, 10.95.0.0/24): o1-srv 10.95.0.10, o1-cli 10.95.0.20
+#   ns-o2 (vpc-o2, 10.95.0.0/24): o2-srv 10.95.0.10, o2-cli 10.95.0.20     <- the SAME addresses as ns-o1
+#   ns-o3 (vpc-o1, 10.80.0.0/24): o3-srv 10.80.0.10, o3-cli 10.80.0.20
+#   ns-t  (default VPC, sub-t)  : t-dup  10.80.0.10                         <- the SAME address as o3-srv
+# CHANGE: the addresses must be free and inside the CIDRs of 76-overlap-vpcs.yaml; ns-t is the tenant namespace of
+#         00-namespaces.yaml (the pod t-dup is added to it).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: o1-srv
+  namespace: ns-o1
+  annotations:
+    ovn.kubernetes.io/ip_address: 10.95.0.10
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "mkdir -p /www && echo O1 > /www/who && exec httpd -f -p 8080 -h /www"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: o1-cli
+  namespace: ns-o1
+  annotations:
+    ovn.kubernetes.io/ip_address: 10.95.0.20
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "sleep 86400"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: o2-srv
+  namespace: ns-o2
+  annotations:
+    ovn.kubernetes.io/ip_address: 10.95.0.10
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "mkdir -p /www && echo O2 > /www/who && exec httpd -f -p 8080 -h /www"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: o2-cli
+  namespace: ns-o2
+  annotations:
+    ovn.kubernetes.io/ip_address: 10.95.0.20
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "sleep 86400"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: o3-srv
+  namespace: ns-o3
+  annotations:
+    ovn.kubernetes.io/ip_address: 10.80.0.10
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "mkdir -p /www && echo O3 > /www/who && exec httpd -f -p 8080 -h /www"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: o3-cli
+  namespace: ns-o3
+  annotations:
+    ovn.kubernetes.io/ip_address: 10.80.0.20
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "sleep 86400"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: t-dup
+  namespace: ns-t
+  annotations:
+    ovn.kubernetes.io/ip_address: 10.80.0.10
+spec:
+  containers:
+  - name: c
+    image: "docker.io/library/busybox:1.36"
+    command: ["sh", "-c", "mkdir -p /www && echo T > /www/who && exec httpd -f -p 8080 -h /www"]

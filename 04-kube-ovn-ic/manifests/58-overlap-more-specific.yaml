@@ -1,0 +1,24 @@
+# 43-ic-overlap.sh, scenario 2. Site B: a subnet INSIDE the pod CIDR of site A (10.16.0.0/16) and a pod that answers SITE-B
+# on 10.16.5.10. (The script creates on site A a pod with the same address that answers SITE-A.)
+# CHANGE: 10.16.5.0/24 must be inside the pod CIDR of site A and unused there.
+---
+apiVersion: v1
+kind: Namespace
+metadata: {name: ns-hj}
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata: {name: sub-hijack}
+spec: {protocol: IPv4, cidrBlock: 10.16.5.0/24, gateway: 10.16.5.1, namespaces: [ns-hj]}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: att
+  namespace: ns-hj
+  annotations: {ovn.kubernetes.io/ip_address: 10.16.5.10}
+spec:
+  containers:
+  - name: c
+    image: docker.io/library/busybox:1.36
+    command: ["sh", "-c", "mkdir -p /www && echo SITE-B > /www/who && exec httpd -f -p 8080 -h /www"]

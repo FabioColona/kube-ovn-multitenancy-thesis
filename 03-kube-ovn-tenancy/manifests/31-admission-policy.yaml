@@ -1,0 +1,31 @@
+# A pod may use the annotation ovn.kubernetes.io/logical_switch only if the label "kubeovn-subnet" of its namespace
+# has the same value. The binding applies only to namespaces labelled tenant-isolation=enforced, because pods of the
+# NAT gateway (kube-system) carry the same annotation and must not be blocked.
+# CHANGE: the policy is generic; the labels are put on the namespaces by 22-admission-policy.sh.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: restrict-logical-switch
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE"]
+      resources: ["pods"]
+  validations:
+  - expression: "!has(object.metadata.annotations) || !('ovn.kubernetes.io/logical_switch' in object.metadata.annotations) || (has(namespaceObject.metadata.labels) && 'kubeovn-subnet' in namespaceObject.metadata.labels && namespaceObject.metadata.labels['kubeovn-subnet'] == object.metadata.annotations['ovn.kubernetes.io/logical_switch'])"
+    message: "this namespace is not authorized to use this subnet (logical_switch annotation)"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: restrict-logical-switch
+spec:
+  policyName: restrict-logical-switch
+  validationActions: ["Deny"]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        tenant-isolation: enforced

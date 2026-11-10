@@ -1,0 +1,110 @@
+# Tenants of site B for the OVN-IC tests (21-ic-tenants.sh). Real values of the thesis laboratory.
+#   tenant T : private subnet sub-t-b (10.81.0.0/24)       tenant U : private subnet sub-u-b (10.83.0.0/24)
+#   custom   : VPC vpc-custom-b with subnet sub-custom-b (10.60.0.0/24) and the pod pb
+#   public   : pod d-b in the default subnet ovn-default (10.17.0.0/16)
+# BASELINE allowSubnets: sub-t-b admits only 10.80.0.0/24 (T on site A), sub-u-b only 10.82.0.0/24 (U on site A).
+# CHANGE: same rules as manifests/40-tenants-site-a.yaml.
+---
+apiVersion: v1
+kind: Namespace
+metadata: {name: ns-t-b}
+---
+apiVersion: v1
+kind: Namespace
+metadata: {name: ns-u-b}
+---
+apiVersion: v1
+kind: Namespace
+metadata: {name: ns-d}
+---
+apiVersion: v1
+kind: Namespace
+metadata: {name: ns-vb}
+---
+apiVersion: kubeovn.io/v1
+kind: Vpc
+metadata: {name: vpc-custom-b}
+spec:
+  namespaces: [ns-vb]
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata: {name: sub-t-b}
+spec:
+  protocol: IPv4
+  cidrBlock: 10.81.0.0/24
+  gateway: 10.81.0.1
+  namespaces: [ns-t-b]
+  private: true
+  natOutgoing: false
+  allowSubnets: [10.80.0.0/24]
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata: {name: sub-u-b}
+spec:
+  protocol: IPv4
+  cidrBlock: 10.83.0.0/24
+  gateway: 10.83.0.1
+  namespaces: [ns-u-b]
+  private: true
+  natOutgoing: false
+  allowSubnets: [10.82.0.0/24]
+---
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata: {name: sub-custom-b}
+spec:
+  vpc: vpc-custom-b
+  protocol: IPv4
+  cidrBlock: 10.60.0.0/24
+  gateway: 10.60.0.1
+  namespaces: [ns-vb]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: t-b
+  namespace: ns-t-b
+  annotations: {ovn.kubernetes.io/ip_address: 10.81.0.20}
+spec:
+  containers:
+  - name: c
+    image: docker.io/library/busybox:1.36
+    command: ["sh", "-c", "exec httpd -f -p 8080 -h /tmp"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: u-b
+  namespace: ns-u-b
+  annotations: {ovn.kubernetes.io/ip_address: 10.83.0.20}
+spec:
+  containers:
+  - name: c
+    image: docker.io/library/busybox:1.36
+    command: ["sh", "-c", "exec httpd -f -p 8080 -h /tmp"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: d-b
+  namespace: ns-d
+  annotations: {ovn.kubernetes.io/ip_address: 10.17.0.30}
+spec:
+  containers:
+  - name: c
+    image: docker.io/library/busybox:1.36
+    command: ["sh", "-c", "exec httpd -f -p 8080 -h /tmp"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pb
+  namespace: ns-vb
+  annotations: {ovn.kubernetes.io/ip_address: 10.60.0.20}
+spec:
+  containers:
+  - name: c
+    image: docker.io/library/busybox:1.36
+    command: ["sh", "-c", "exec httpd -f -p 8080 -h /tmp"]

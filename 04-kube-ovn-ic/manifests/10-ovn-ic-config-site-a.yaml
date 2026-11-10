@@ -1,0 +1,18 @@
+# ConfigMap that turns on OVN-IC on the cluster of site A. Kube-OVN reads it; to change it, delete it and apply it again
+# (the documentation asks not to edit it in place).
+# CHANGE: az-name is the unique name of this site's zone; gw-nodes is the node that carries the OVN-IC gateway (the node
+#         must also have the label ovn.kubernetes.io/ic-gw=true, set by 11-install-ic.sh); ic-db-host is the address of
+#         the node that runs the OVN-IC database (site A's node, in this lab), the same in both sites.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ovn-ic-config
+  namespace: kube-system
+data:
+  enable-ic: "true"
+  az-name: "az-a"
+  ic-db-host: "10.1.0.10"
+  ic-nb-port: "6645"
+  ic-sb-port: "6646"
+  gw-nodes: "site-a"
+  auto-route: "true"
